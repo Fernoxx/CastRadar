@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { sdk } from '@farcaster/miniapp-sdk';
 import LoadingRadar from '../components/LoadingRadar';
 import { ChannelBox } from '../components/ChannelBox';
 import { ActivityChart, ChartDataPoint } from '../components/ActivityChart';
@@ -49,18 +50,59 @@ export default function History() {
   const [data, setData] = useState<HistorySnapshot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sdkReady, setSdkReady] = useState(false);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        setError(null);
+    let mounted = true;
 
+    async function initializeApp() {
+      try {
+        // Initialize Farcaster SDK
+        if (typeof window !== 'undefined') {
+          try {
+            // Wait a bit for the SDK to be available
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            if (sdk?.actions?.ready) {
+              await sdk.actions.ready();
+              console.log('Farcaster SDK ready called successfully');
+            } else {
+              console.log('Farcaster SDK not available, running in standalone mode');
+            }
+            
+            if (mounted) {
+              setSdkReady(true);
+            }
+          } catch (sdkError) {
+            console.warn('Farcaster SDK error:', sdkError);
+            if (mounted) {
+              setSdkReady(true); // Continue anyway
+            }
+          }
+        }
+
+        // Fetch data
+        await fetchData();
+      } catch (error) {
+        console.error('App initialization error:', error);
+        if (mounted) {
+          setError('Failed to initialize app');
+          setLoading(false);
+        }
+      }
+    }
+
+    async function fetchData() {
+      if (!mounted) return;
+
+      try {
         const { data: snapshots, error: fetchError } = await supabase
           .from('snapshots')
           .select('*')
           .order('date', { ascending: false })
           .limit(7);
+
+        if (!mounted) return;
 
         if (fetchError) {
           setError(`Failed to fetch history: ${fetchError.message}`);
@@ -78,12 +120,18 @@ export default function History() {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching history:', error);
-        setError(error instanceof Error ? error.message : 'An unexpected error occurred');
-        setLoading(false);
+        if (mounted) {
+          setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+          setLoading(false);
+        }
       }
     }
 
-    fetchData();
+    initializeApp();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (loading) return <LoadingRadar />;
@@ -144,6 +192,9 @@ export default function History() {
         <header className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">📆 CastRadar History</h1>
           <p className="text-gray-600">Last {data.length} Days of Farcaster Activity</p>
+          {!sdkReady && (
+            <p className="text-xs text-purple-600 mt-1">Standalone Mode</p>
+          )}
         </header>
 
         {/* Activity Chart */}

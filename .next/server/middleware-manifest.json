@@ -1,30 +1,6 @@
 {
   "version": 3,
   "middleware": {},
-  "functions": {
-    "/api/refresh": {
-      "files": [
-        "server/edge-runtime-webpack.js",
-        "server/pages/api/refresh.js"
-      ],
-      "name": "pages/api/refresh",
-      "page": "/api/refresh",
-      "matchers": [
-        {
-          "regexp": "^/api/refresh$",
-          "originalSource": "/api/refresh"
-        }
-      ],
-      "wasm": [],
-      "assets": [],
-      "env": {
-        "__NEXT_BUILD_ID": "priimol2KyCVRWKmDCW2z",
-        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "cEnRqZhjkseKmwZhIZqXpJgCN2DcOnOctpN+0kK3JTA=",
-        "__NEXT_PREVIEW_MODE_ID": "678a7c9521622e749be598aa85d6d50d",
-        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "b1d4ac52f1b535053f18a58ee319dcc11396d9dc478a15a570ce219d2aae4980",
-        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "5f5c626b6375e02b9c54eb0e9331043d2e2399e55f7a3011827fc3b426fc104b"
-      }
-    }
-  },
+  "functions": {},
   "sortedMiddleware": []
 }

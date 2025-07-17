@@ -51,13 +51,63 @@ export default function Home() {
   const [data, setData] = useState<SnapshotData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sdkReady, setSdkReady] = useState(false);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        setError(null);
+    let mounted = true;
 
+    async function initializeApp() {
+      try {
+        // Initialize Farcaster SDK
+        if (typeof window !== 'undefined') {
+          try {
+            console.log('Initializing Farcaster SDK...');
+            
+            // Wait a bit for the SDK to be available
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Try to import and use the SDK
+            try {
+              const { sdk } = await import('@farcaster/miniapp-sdk');
+              console.log('SDK imported:', sdk);
+              
+              if (sdk?.actions?.ready) {
+                console.log('Calling SDK ready...');
+                await sdk.actions.ready();
+                console.log('Farcaster SDK ready called successfully');
+              } else {
+                console.log('SDK ready method not available');
+              }
+            } catch (importError) {
+              console.log('Failed to import SDK:', importError);
+            }
+            
+            if (mounted) {
+              setSdkReady(true);
+            }
+          } catch (sdkError) {
+            console.warn('Farcaster SDK error:', sdkError);
+            if (mounted) {
+              setSdkReady(true); // Continue anyway
+            }
+          }
+        }
+
+        // Fetch data
+        await fetchData();
+      } catch (error) {
+        console.error('App initialization error:', error);
+        if (mounted) {
+          setError('Failed to initialize app');
+          setLoading(false);
+        }
+      }
+    }
+
+    async function fetchData() {
+      if (!mounted) return;
+
+      try {
         const today = dayjs().utc().format('YYYY-MM-DD');
         
         const { data: snapshot, error: fetchError } = await supabase
@@ -66,10 +116,28 @@ export default function Home() {
           .eq('date', today)
           .single();
 
+        if (!mounted) return;
+
         if (fetchError) {
           if (fetchError.code === 'PGRST116') {
-            // No snapshot found for today
-            setError('No data available for today. The daily snapshot may not have been generated yet.');
+            // No snapshot found for today, try to create one
+            console.log('No snapshot found for today, attempting to create one...');
+            try {
+              const response = await fetch('/api/refresh');
+              if (response.ok) {
+                // Retry fetching after refresh
+                setTimeout(() => {
+                  if (mounted) {
+                    window.location.reload();
+                  }
+                }, 2000);
+                setError('Generating today\'s data... Please wait a moment and refresh.');
+              } else {
+                setError('No data available for today. Please try again later.');
+              }
+            } catch (refreshError) {
+              setError('No data available for today. Please try again later.');
+            }
           } else {
             setError(`Failed to fetch data: ${fetchError.message}`);
           }
@@ -87,12 +155,18 @@ export default function Home() {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError(error instanceof Error ? error.message : 'An unexpected error occurred');
-        setLoading(false);
+        if (mounted) {
+          setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+          setLoading(false);
+        }
       }
     }
 
-    fetchData();
+    initializeApp();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   if (loading) return <LoadingRadar />;
@@ -106,7 +180,7 @@ export default function Home() {
             <div className="text-red-500 mb-4">⚠️ {error}</div>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-purple-700 text-white rounded-full hover:bg-purple-800 transition-colors"
+              className="px-4 py-2 bg-purple-700 text-white rounded-full hover:bg-purple-800 transition-colors mr-2"
             >
               Try Again
             </button>
@@ -131,12 +205,20 @@ export default function Home() {
           <div className="bg-white rounded-2xl p-6 shadow-md text-center">
             <h1 className="text-2xl font-bold mb-4 text-gray-800">📱 CastRadar</h1>
             <p className="text-gray-600 mb-4">No data available for today.</p>
-            <a
-              href="/history"
-              className="inline-block px-4 py-2 bg-purple-700 text-white rounded-full hover:bg-purple-800 transition-colors"
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-purple-700 text-white rounded-full hover:bg-purple-800 transition-colors mr-2"
             >
-              View 7-Day History →
-            </a>
+              Refresh Data
+            </button>
+            <div className="mt-4">
+              <a
+                href="/history"
+                className="text-purple-700 hover:text-purple-800 transition-colors"
+              >
+                View 7-Day History →
+              </a>
+            </div>
           </div>
         </div>
       </main>
@@ -149,6 +231,9 @@ export default function Home() {
         <header className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">📱 CastRadar</h1>
           <p className="text-gray-600">Today's Farcaster Activity • {dayjs().format('MMM D, YYYY')}</p>
+          <p className="text-xs text-purple-600 mt-1">
+            {sdkReady ? 'Miniapp Mode' : 'Standalone Mode'}
+          </p>
         </header>
 
         {/* Trending Channels Section */}
