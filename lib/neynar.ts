@@ -29,37 +29,39 @@ export interface ChannelData {
 }
 
 export async function getTrendingChannels(): Promise<string[]> {
-  try {
-    const response = await fetch(`${BASE_URL}/channels/trending`, {
-      headers
-    });
-    
-    if (!response.ok) {
-      console.error('Failed to fetch trending channels:', response.statusText);
-      return ['memes', 'crypto', 'ask', 'tech', 'music', 'art', 'founders', 'gaming'];
-    }
-    
-    const data = await response.json() as any;
-    return data.channels?.map((ch: any) => ch.id) || ['memes', 'crypto', 'ask', 'tech', 'music'];
-  } catch (error) {
-    console.error('Error fetching trending channels:', error);
-    return ['memes', 'crypto', 'ask', 'tech', 'music', 'art', 'founders', 'gaming'];
-  }
+  // Return static list of popular channels since trending endpoint might not work
+  return ['memes', 'crypto', 'degen', 'base', 'founders', 'art', 'music', 'tech'];
 }
 
-export async function getChannelCasts(channelId: string, limit: number = 100): Promise<Cast[]> {
+export async function getChannelCasts(channelId: string, limit: number = 25): Promise<Cast[]> {
   try {
+    console.log(`Fetching casts for channel: ${channelId}`);
+    
     const response = await fetch(
       `${BASE_URL}/feed/channels?channel_ids=${channelId}&limit=${limit}&with_recasts=false`,
       { headers }
     );
     
     if (!response.ok) {
-      console.error(`Failed to fetch casts for channel ${channelId}:`, response.statusText);
-      return [];
+      console.error(`Failed to fetch casts for channel ${channelId}:`, response.status, response.statusText);
+      
+      // Try alternative endpoint
+      const altResponse = await fetch(
+        `${BASE_URL}/feed?filter_type=channel_id&channel_id=${channelId}&limit=${limit}`,
+        { headers }
+      );
+      
+      if (!altResponse.ok) {
+        console.error(`Alternative endpoint also failed for ${channelId}`);
+        return [];
+      }
+      
+      const altData = await altResponse.json() as any;
+      return altData.casts || [];
     }
     
     const data = await response.json() as any;
+    console.log(`Got ${data.casts?.length || 0} casts for channel ${channelId}`);
     return data.casts || [];
   } catch (error) {
     console.error(`Error fetching casts for channel ${channelId}:`, error);

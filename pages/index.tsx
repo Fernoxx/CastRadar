@@ -108,49 +108,84 @@ export default function Home() {
       if (!mounted) return;
 
       try {
-        const today = dayjs().utc().format('YYYY-MM-DD');
+        console.log('Fetching data...');
         
-        const { data: snapshot, error: fetchError } = await supabase
+        // First try to get today's data
+        const today = dayjs().utc().format('YYYY-MM-DD');
+        console.log('Looking for data for date:', today);
+        
+        let { data: snapshot, error: fetchError } = await supabase
           .from('snapshots')
           .select('*')
           .eq('date', today)
           .single();
 
+        console.log('Today snapshot result:', snapshot, fetchError);
+
+        // If no data for today, try to get the most recent data
+        if (fetchError && fetchError.code === 'PGRST116') {
+          console.log('No data for today, fetching most recent...');
+          
+          const { data: recentSnapshot, error: recentError } = await supabase
+            .from('snapshots')
+            .select('*')
+            .order('date', { ascending: false })
+            .limit(1)
+            .single();
+
+          console.log('Recent snapshot result:', recentSnapshot, recentError);
+
+          if (recentSnapshot && !recentError) {
+            snapshot = recentSnapshot;
+            fetchError = null;
+          }
+        }
+
         if (!mounted) return;
 
-        if (fetchError) {
-          if (fetchError.code === 'PGRST116') {
-            // No snapshot found for today, try to create one
-            console.log('No snapshot found for today, attempting to create one...');
-            try {
-              const response = await fetch('/api/refresh');
-              if (response.ok) {
-                // Retry fetching after refresh
-                setTimeout(() => {
-                  if (mounted) {
-                    window.location.reload();
-                  }
-                }, 2000);
-                setError('Generating today\'s data... Please wait a moment and refresh.');
-              } else {
-                setError('No data available for today. Please try again later.');
-              }
-            } catch (refreshError) {
-              setError('No data available for today. Please try again later.');
+        if (fetchError && fetchError.code === 'PGRST116') {
+          // Still no data, try to create some
+          console.log('No data found, attempting to create snapshot...');
+          try {
+            const response = await fetch('/api/refresh');
+            console.log('Refresh API response:', response.status);
+            
+            if (response.ok) {
+              // Wait a moment and retry
+              setTimeout(() => {
+                if (mounted) {
+                  console.log('Retrying data fetch after refresh...');
+                  fetchData();
+                }
+              }, 3000);
+              
+              setError('Generating fresh data... Please wait a moment.');
+              return;
+            } else {
+              setError('Unable to generate data. Please try again later.');
             }
-          } else {
-            setError(`Failed to fetch data: ${fetchError.message}`);
+          } catch (refreshError) {
+            console.error('Refresh error:', refreshError);
+            setError('Unable to fetch data. Please try again later.');
           }
           setLoading(false);
           return;
         }
 
-        if (!snapshot) {
-          setError('No snapshot data found for today.');
+        if (fetchError) {
+          console.error('Fetch error:', fetchError);
+          setError(`Failed to fetch data: ${fetchError.message}`);
           setLoading(false);
           return;
         }
 
+        if (!snapshot) {
+          setError('No snapshot data found.');
+          setLoading(false);
+          return;
+        }
+
+        console.log('Setting data:', snapshot);
         setData(snapshot);
         setLoading(false);
       } catch (error) {
@@ -204,7 +239,7 @@ export default function Home() {
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-2xl p-6 shadow-md text-center">
             <h1 className="text-2xl font-bold mb-4 text-gray-800">📱 CastRadar</h1>
-            <p className="text-gray-600 mb-4">No data available for today.</p>
+            <p className="text-gray-600 mb-4">No data available.</p>
             <button
               onClick={() => window.location.reload()}
               className="px-4 py-2 bg-purple-700 text-white rounded-full hover:bg-purple-800 transition-colors mr-2"
@@ -230,7 +265,7 @@ export default function Home() {
       <div className="max-w-2xl mx-auto">
         <header className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">📱 CastRadar</h1>
-          <p className="text-gray-600">Today's Farcaster Activity • {dayjs().format('MMM D, YYYY')}</p>
+          <p className="text-gray-600">Today's Farcaster Activity • {dayjs(data.date).format('MMM D, YYYY')}</p>
           <p className="text-xs text-purple-600 mt-1">
             {sdkReady ? 'Miniapp Mode' : 'Standalone Mode'}
           </p>
