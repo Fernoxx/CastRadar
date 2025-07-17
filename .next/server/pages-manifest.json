@@ -1,1 +1,6 @@
-{"/_app":"pages/_app.js","/api/cron":"pages/api/cron.js","/history":"pages/history.html","/":"pages/index.html","/_error":"pages/_error.js","/_document":"pages/_document.js","/api/refresh":"pages/api/refresh.js","/404":"pages/404.html"}
+{
+  "/api/refresh": "pages/api/refresh.js",
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js"
+}

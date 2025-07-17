@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@farcaster/miniapp-sdk": "^0.1.0",
     "@supabase/supabase-js": "^2.39.5",
     "dayjs": "^1.11.11",
     "next": "^15.1.0",
