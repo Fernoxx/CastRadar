@@ -1,4 +1,4 @@
-import type { NextRequest } from 'next/server';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import supabase from '../../lib/supabase';
 import { getTrendingChannels, getChannelCasts, getLikesCount, Cast } from '../../lib/neynar';
 import dayjs from 'dayjs';
@@ -6,11 +6,9 @@ import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(utc);
 
-export const config = { runtime: 'edge' };
-
-export default async function handler(req: NextRequest) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
-    return new Response('Method not allowed', { status: 405 });
+    return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
@@ -112,7 +110,10 @@ export default async function handler(req: NextRequest) {
 
     if (error) {
       console.error('Error storing snapshot:', error);
-      return new Response(`Failed to store snapshot: ${error.message}`, { status: 500 });
+      return res.status(500).json({ 
+        error: 'Failed to store snapshot',
+        details: error.message 
+      });
     }
 
     // Clean up old snapshots
@@ -122,10 +123,17 @@ export default async function handler(req: NextRequest) {
       .delete()
       .lt('date', sevenDaysAgo);
 
-    return new Response(`Fresh snapshot stored for ${today}`, { status: 200 });
+    return res.status(200).json({ 
+      success: true,
+      message: `Fresh snapshot stored for ${today}`,
+      date: today
+    });
 
   } catch (error) {
     console.error('Error in refresh API:', error);
-    return new Response(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 });
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 }

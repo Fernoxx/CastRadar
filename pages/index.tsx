@@ -147,10 +147,14 @@ export default function Home() {
           // Still no data, try to create some
           console.log('No data found, attempting to create snapshot...');
           try {
+            console.log('Attempting to refresh data...');
             const response = await fetch('/api/refresh');
-            console.log('Refresh API response:', response.status);
+            console.log('Refresh API response:', response.status, response.statusText);
             
             if (response.ok) {
+              const result = await response.json();
+              console.log('Refresh result:', result);
+              
               // Wait a moment and retry
               setTimeout(() => {
                 if (mounted) {
@@ -162,11 +166,13 @@ export default function Home() {
               setError('Generating fresh data... Please wait a moment.');
               return;
             } else {
-              setError('Unable to generate data. Please try again later.');
+              const errorText = await response.text();
+              console.error('Refresh API error:', response.status, errorText);
+              setError(`Unable to generate data (${response.status}). Please check your environment variables.`);
             }
           } catch (refreshError) {
             console.error('Refresh error:', refreshError);
-            setError('Unable to fetch data. Please try again later.');
+            setError(`Network error: ${refreshError instanceof Error ? refreshError.message : 'Unknown error'}`);
           }
           setLoading(false);
           return;
@@ -211,7 +217,7 @@ export default function Home() {
       <main className="bg-purple-100 min-h-screen p-6">
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-2xl p-6 shadow-md text-center">
-            <h1 className="text-2xl font-bold mb-4 text-gray-800">📱 CastRadar</h1>
+            <h1 className="text-2xl font-bold mb-4 text-gray-800">CastRadar</h1>
             <div className="text-red-500 mb-4">⚠️ {error}</div>
             <button
               onClick={() => window.location.reload()}
@@ -238,7 +244,7 @@ export default function Home() {
       <main className="bg-purple-100 min-h-screen p-6">
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-2xl p-6 shadow-md text-center">
-            <h1 className="text-2xl font-bold mb-4 text-gray-800">📱 CastRadar</h1>
+            <h1 className="text-2xl font-bold mb-4 text-gray-800">CastRadar</h1>
             <p className="text-gray-600 mb-4">No data available.</p>
             <button
               onClick={() => window.location.reload()}
@@ -264,7 +270,7 @@ export default function Home() {
     <main className="bg-purple-100 min-h-screen p-4 sm:p-6">
       <div className="max-w-2xl mx-auto">
         <header className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">📱 CastRadar</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">CastRadar</h1>
           <p className="text-gray-600">Today's Farcaster Activity • {dayjs(data.date).format('MMM D, YYYY')}</p>
           <p className="text-xs text-purple-600 mt-1">
             {sdkReady ? 'Miniapp Mode' : 'Standalone Mode'}

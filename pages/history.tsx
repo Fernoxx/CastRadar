@@ -141,7 +141,7 @@ export default function History() {
       <main className="bg-purple-100 min-h-screen p-6">
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-2xl p-6 shadow-md text-center">
-            <h1 className="text-2xl font-bold mb-4 text-gray-800">📆 CastRadar History</h1>
+            <h1 className="text-2xl font-bold mb-4 text-gray-800">CastRadar History</h1>
             <div className="text-red-500 mb-4">⚠️ {error}</div>
             <button
               onClick={() => window.location.reload()}
@@ -166,7 +166,7 @@ export default function History() {
       <main className="bg-purple-100 min-h-screen p-6">
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-2xl p-6 shadow-md text-center">
-            <h1 className="text-2xl font-bold mb-4 text-gray-800">📆 CastRadar History</h1>
+            <h1 className="text-2xl font-bold mb-4 text-gray-800">CastRadar History</h1>
             <p className="text-gray-600 mb-4">No historical data available yet.</p>
             <a
               href="/"
@@ -190,7 +190,7 @@ export default function History() {
     <main className="bg-purple-100 min-h-screen p-4 sm:p-6">
       <div className="max-w-2xl mx-auto">
         <header className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">📆 CastRadar History</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">CastRadar History</h1>
           <p className="text-gray-600">Last {data.length} Days of Farcaster Activity</p>
           {!sdkReady && (
             <p className="text-xs text-purple-600 mt-1">Standalone Mode</p>
