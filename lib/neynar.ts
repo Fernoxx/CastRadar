@@ -1,9 +1,11 @@
 const BASE_URL = 'https://api.neynar.com/v2/farcaster';
 const API_KEY = process.env.NEYNAR_API_KEY!;
+const CLIENT_ID = process.env.NEYNAR_CLIENT_ID;
 
 const headers = {
   'accept': 'application/json',
-  'x-api-key': API_KEY
+  'x-api-key': API_KEY,
+  ...(CLIENT_ID && { 'x-client-id': CLIENT_ID })
 };
 
 export interface Cast {
