@@ -46,8 +46,6 @@ interface SnapshotData {
 export default function Home() {
   const [data, setData] = useState<SnapshotData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [sdkReady, setSdkReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
