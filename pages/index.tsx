@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import LoadingRadar from '../components/LoadingRadar';
-import { ChannelBox } from '../components/ChannelBox';
 
 dayjs.extend(utc);
 
