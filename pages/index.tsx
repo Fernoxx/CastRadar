@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import LoadingRadar from '../components/LoadingRadar';
 import { ChannelBox } from '../components/ChannelBox';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(utc);
 
@@ -95,7 +93,14 @@ export default function Home() {
 
         // Fetch data
         await fetchData();
-      } catch (error) 
+      } catch (error) {
+        console.error('App initialization error:', error);
+        if (mounted) {
+          setError('Failed to initialize app');
+          setLoading(false);
+        }
+      }
+    }
 
     async function fetchData() {
       if (!mounted) return;
@@ -106,6 +111,12 @@ export default function Home() {
         // First try to get today's data
         const today = dayjs().utc().format('YYYY-MM-DD');
         console.log('Looking for data for date:', today);
+        
+        let { data: snapshot, error: fetchError } = await supabase
+          .from('snapshots')
+          .select('*')
+          .eq('date', today)
+          .single();
 
         console.log('Today snapshot result:', snapshot, fetchError);
 
@@ -126,21 +137,44 @@ export default function Home() {
             snapshot = recentSnapshot;
             fetchError = null;
           }
+        }
+
+        if (!mounted) return;
+
         if (fetchError && fetchError.code === 'PGRST116') {
           // Still no data, try to create some
           console.log('No data found, attempting to create snapshot...');
-    
+          try {
+            const response = await fetch('/api/refresh');
+            console.log('Refresh API response:', response.status);
+            
             if (response.ok) {
               // Wait a moment and retry
               setTimeout(() => {
                 if (mounted) {
                   console.log('Retrying data fetch after refresh...');
                   fetchData();
+                }
+              }, 3000);
+              
+              setError('Generating fresh data... Please wait a moment.');
+              return;
             } else {
               setError('Unable to generate data. Please try again later.');
             }
           } catch (refreshError) {
             console.error('Refresh error:', refreshError);
+            setError('Unable to fetch data. Please try again later.');
+          }
+          setLoading(false);
+          return;
+        }
+
+        if (fetchError) {
+          console.error('Fetch error:', fetchError);
+          setError(`Failed to fetch data: ${fetchError.message}`);
+          setLoading(false);
+          return;
         }
 
         if (!snapshot) {
@@ -152,6 +186,19 @@ export default function Home() {
         console.log('Setting data:', snapshot);
         setData(snapshot);
         setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        if (mounted) {
+          setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+          setLoading(false);
+        }
+      }
+    }
+
+    initializeApp();
+
+    return () => {
+      mounted = false;
     };
   }, []);
 
@@ -166,6 +213,10 @@ export default function Home() {
             <div className="text-red-500 mb-4">⚠️ {error}</div>
             <button
               onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-purple-700 text-white rounded-full hover:bg-purple-800 transition-colors mr-2"
+            >
+              Try Again
+            </button>
             <div className="mt-4">
               <a
                 href="/history"
@@ -179,6 +230,18 @@ export default function Home() {
       </main>
     );
   }
+
+  if (!data) {
+    return (
+      <main className="bg-purple-100 min-h-screen p-6">
+        <div className="max-w-md mx-auto">
+          <div className="bg-white rounded-2xl p-6 shadow-md text-center">
+            <h1 className="text-2xl font-bold mb-4 text-gray-800">📱 CastRadar</h1>
+            <p className="text-gray-600 mb-4">No data available.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-purple-700 text-white rounded-full hover:bg-purple-800 transition-colors mr-2"
+            >
               Refresh Data
             </button>
             <div className="mt-4">
@@ -224,6 +287,10 @@ export default function Home() {
             ))
           ) : (
             <div className="bg-white rounded-2xl p-6 shadow-md text-center text-gray-500">
+              No trending channels data available
+            </div>
+          )}
+        </section>
 
         {/* Most Liked Cast Section */}
         <section className="mb-8">
