@@ -170,11 +170,6 @@ export default function Home() {
         if (mounted) {
           setError(error instanceof Error ? error.message : 'An unexpected error occurred');
           setLoading(false);
-        }
-      }
-
-    return () => {
-      mounted = false;
     };
   }, []);
 
