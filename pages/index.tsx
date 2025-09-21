@@ -95,14 +95,7 @@ export default function Home() {
 
         // Fetch data
         await fetchData();
-      } catch (error) {
-        console.error('App initialization error:', error);
-        if (mounted) {
-          setError('Failed to initialize app');
-          setLoading(false);
-        }
-      }
-    }
+      } catch (error) 
 
     async function fetchData() {
       if (!mounted) return;
