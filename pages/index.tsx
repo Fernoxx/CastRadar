@@ -203,10 +203,6 @@ export default function Home() {
             <div className="text-red-500 mb-4">⚠️ {error}</div>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-purple-700 text-white rounded-full hover:bg-purple-800 transition-colors mr-2"
-            >
-              Try Again
-            </button>
             <div className="mt-4">
               <a
                 href="/history"
