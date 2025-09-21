@@ -160,13 +160,6 @@ export default function Home() {
           return;
         }
 
-        if (fetchError) {
-          console.error('Fetch error:', fetchError);
-          setError(`Failed to fetch data: ${fetchError.message}`);
-          setLoading(false);
-          return;
-        }
-
         if (!snapshot) {
           setError('No snapshot data found.');
           setLoading(false);
