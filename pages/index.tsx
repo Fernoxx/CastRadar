@@ -132,10 +132,6 @@ export default function Home() {
             snapshot = recentSnapshot;
             fetchError = null;
           }
-        }
-
-        if (!mounted) return;
-
         if (fetchError && fetchError.code === 'PGRST116') {
           // Still no data, try to create some
           console.log('No data found, attempting to create snapshot...');
