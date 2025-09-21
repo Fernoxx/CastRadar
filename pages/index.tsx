@@ -149,11 +149,6 @@ export default function Home() {
                 if (mounted) {
                   console.log('Retrying data fetch after refresh...');
                   fetchData();
-                }
-              }, 3000);
-              
-              setError('Generating fresh data... Please wait a moment.');
-              return;
             } else {
               setError('Unable to generate data. Please try again later.');
             }
