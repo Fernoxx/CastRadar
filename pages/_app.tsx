@@ -6,8 +6,6 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>CastRadar - Farcaster Activity Tracker</title>
-        <meta name="theme-color" content="#7c3aed" />
       </Head>
       <Component {...pageProps} />
     </>
