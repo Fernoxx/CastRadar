@@ -225,18 +225,6 @@ export default function Home() {
       </main>
     );
   }
-
-  if (!data) {
-    return (
-      <main className="bg-purple-100 min-h-screen p-6">
-        <div className="max-w-md mx-auto">
-          <div className="bg-white rounded-2xl p-6 shadow-md text-center">
-            <h1 className="text-2xl font-bold mb-4 text-gray-800">📱 CastRadar</h1>
-            <p className="text-gray-600 mb-4">No data available.</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-purple-700 text-white rounded-full hover:bg-purple-800 transition-colors mr-2"
-            >
               Refresh Data
             </button>
             <div className="mt-4">
