@@ -165,11 +165,6 @@ export default function Home() {
         console.log('Setting data:', snapshot);
         setData(snapshot);
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        if (mounted) {
-          setError(error instanceof Error ? error.message : 'An unexpected error occurred');
-          setLoading(false);
     };
   }, []);
 
