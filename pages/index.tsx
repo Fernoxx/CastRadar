@@ -172,9 +172,6 @@ export default function Home() {
           setLoading(false);
         }
       }
-    }
-
-    initializeApp();
 
     return () => {
       mounted = false;
