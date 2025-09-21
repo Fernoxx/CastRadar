@@ -250,10 +250,6 @@ export default function Home() {
             ))
           ) : (
             <div className="bg-white rounded-2xl p-6 shadow-md text-center text-gray-500">
-              No trending channels data available
-            </div>
-          )}
-        </section>
 
         {/* Most Liked Cast Section */}
         <section className="mb-8">
