@@ -147,10 +147,6 @@ export default function Home() {
             }
           } catch (refreshError) {
             console.error('Refresh error:', refreshError);
-            setError('Unable to fetch data. Please try again later.');
-          }
-          setLoading(false);
-          return;
         }
 
         if (!snapshot) {
