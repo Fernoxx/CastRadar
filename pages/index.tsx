@@ -106,12 +106,6 @@ export default function Home() {
         // First try to get today's data
         const today = dayjs().utc().format('YYYY-MM-DD');
         console.log('Looking for data for date:', today);
-        
-        let { data: snapshot, error: fetchError } = await supabase
-          .from('snapshots')
-          .select('*')
-          .eq('date', today)
-          .single();
 
         console.log('Today snapshot result:', snapshot, fetchError);
 
