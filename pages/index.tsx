@@ -126,8 +126,6 @@ export default function Home() {
             .from('snapshots')
             .select('*')
             .order('date', { ascending: false })
-            .limit(1)
-            .single();
 
           console.log('Recent snapshot result:', recentSnapshot, recentError);
 
