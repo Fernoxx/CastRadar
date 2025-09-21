@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import LoadingRadar from '../components/LoadingRadar';
+import { ChannelBox } from '../components/ChannelBox';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(utc);
 
@@ -46,6 +50,8 @@ interface SnapshotData {
 export default function Home() {
   const [data, setData] = useState<SnapshotData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [sdkReady, setSdkReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -124,6 +130,8 @@ export default function Home() {
             .from('snapshots')
             .select('*')
             .order('date', { ascending: false })
+            .limit(1)
+            .single();
 
           console.log('Recent snapshot result:', recentSnapshot, recentError);
 
