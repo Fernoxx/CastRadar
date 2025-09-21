@@ -135,10 +135,7 @@ export default function Home() {
         if (fetchError && fetchError.code === 'PGRST116') {
           // Still no data, try to create some
           console.log('No data found, attempting to create snapshot...');
-          try {
-            const response = await fetch('/api/refresh');
-            console.log('Refresh API response:', response.status);
-            
+    
             if (response.ok) {
               // Wait a moment and retry
               setTimeout(() => {
