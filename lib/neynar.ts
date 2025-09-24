@@ -1,10 +1,20 @@
 const BASE_URL = 'https://api.neynar.com/v2/farcaster';
 const API_KEY = process.env.NEYNAR_API_KEY!;
+const CLIENT_ID = process.env.NEYNAR_CLIENT_ID!;
 
+// Debug logging
+console.log('Neynar API Key exists:', !!API_KEY);
+console.log('Neynar Client ID exists:', !!CLIENT_ID);
+
+// Headers for API requests - currently only using API_KEY for authentication
+// CLIENT_ID is available for future OAuth flows or SDK integration
 const headers = {
   'accept': 'application/json',
   'x-api-key': API_KEY
 };
+
+// Export CLIENT_ID for potential future use (OAuth, SDK initialization, etc.)
+export { CLIENT_ID };
 
 export interface Cast {
   hash: string;

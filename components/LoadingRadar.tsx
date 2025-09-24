@@ -4,7 +4,7 @@ export default function LoadingRadar() {
   return (
     <div className="bg-purple-100 min-h-screen flex flex-col items-center justify-center p-6">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">📱 CastRadar</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">CastRadar</h1>
       </div>
       
       <div className="radar" />

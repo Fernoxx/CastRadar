@@ -27,6 +27,8 @@ CREATE INDEX idx_snapshots_date ON snapshots(date DESC);
 1. Visit [https://neynar.com](https://neynar.com) and create an account
 2. Generate an API key from your dashboard
 3. Note your Client ID as well
+   - **API Key**: Used for direct API authentication (currently in use)
+   - **Client ID**: Available for future OAuth flows or SDK integration
 
 ### 3. Environment Variables
 

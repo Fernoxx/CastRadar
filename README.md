@@ -44,8 +44,8 @@ CastRadar is a Next.js miniapp that tracks and displays the most active Farcaste
 Create a `.env.local` file with the following variables:
 
 ```env
-NEYNAR_API_KEY=your_neynar_api_key
-NEYNAR_CLIENT_ID=your_neynar_client_id
+NEYNAR_API_KEY=your_neynar_api_key  # Used for direct API authentication
+NEYNAR_CLIENT_ID=your_neynar_client_id  # Available for future OAuth/SDK use
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_KEY=your_supabase_anon_key
 SUPABASE_URL=your_supabase_url
